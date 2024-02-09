@@ -1,0 +1,76 @@
+version: '3'
+
+services:
+  wordpress:
+    image: bitnami/prestashop:8.1.3
+    ports:
+      - 80
+    environment: 
+      - PRESTASHOP_FIRST_NAME=${PRESTASHOP_FIRST_NAME}
+      - PRESTASHOP_LAST_NAME=${PRESTASHOP_LAST_NAME}
+      - PRESTASHOP_PASSWORD=${PRESTASHOP_PASSWORD}
+      - PRESTASHOP_HOST=${PRESTASHOP_HOST}
+      - PRESTASHOP_EMAIL=${PRESTASHOP_EMAIL}
+      - PRESTASHOP_COUNTRY=${RESTASHOP_COUNTRY}
+      - PRESTASHOP_DATABASE_HOST=mysql
+      - PRESTASHOP_DATABASE_NAME=${PRESTASHOP_DATABASE_NAME}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - PRESTASHOP_DATABASE_USER=${PRESTASHOP_DATABASE_USER}
+      - PRESTASHOP_DATABASE_PASSWORD=${WORDPRESS_DATABASE_PASSWORD}
+      - PRESTASHOP_DATABASE_PREFIX=${PRESTASHOP_DATABASE_PREFIX}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes: 
+      - prestashop_data:/bitnami/prestashop
+    depends_on:
+      - mysql
+    restart: always
+    networks:
+      - frontend-network
+      - backend-network
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${PRESTASHOP_DATABASE_NAME}
+      - MYSQL_USER=${PRESTASHOP_DATABASE_USER}
+      - MYSQL_PASSWORD=${PRESTASHOP_DATABASE_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+    networks:
+      - backend-network
+      
+  phpmyadmin:
+    image: phpmyadmin:5.2.1
+    ports:
+      - 8080:80
+    environment: 
+      - PMA_HOST=mysql
+    restart: always
+    networks:
+      - frontend-network
+      - backend-network
+
+#  https-portal:
+#    image: steveltn/https-portal:1
+#    ports:
+#      - 80:80
+#      - 443:443
+#    restart: always
+#    environment:
+#      DOMAINS: '${DNS_DOMAIN_SECURE} -> http://wordpress:8080'
+#      STAGE: 'production' # Don't use production until staging works
+      # FORCE_RENEW: 'true'
+#    networks:
+#      - frontend-network
+
+volumes: 
+  mysql_data:
+  prestashop_data:
+
+networks:
+  frontend-network:
+  backend-network:
