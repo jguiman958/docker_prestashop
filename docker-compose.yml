@@ -1,22 +1,22 @@
 version: '3.3'
 
 services:
-  wordpress:
+  prestashop:
     image: bitnami/prestashop:1.7
     environment: 
       - PRESTASHOP_FIRST_NAME=${PRESTASHOP_FIRST_NAME}
       - PRESTASHOP_LAST_NAME=${PRESTASHOP_LAST_NAME}
       - PRESTASHOP_PASSWORD=${PRESTASHOP_PASSWORD}
-      - PRESTASHOP_HOST=${PRESTASHOP_HOST}
+      - PRESTASHOP_HOST=${DNS_DOMAIN_SECURE}
       - PRESTASHOP_EMAIL=${PRESTASHOP_EMAIL}
-      - PRESTASHOP_COUNTRY=${RESTASHOP_COUNTRY}
+      - PRESTASHOP_COUNTRY=${PRESTASHOP_COUNTRY}
       - PRESTASHOP_DATABASE_HOST=mysql
       - PRESTASHOP_DATABASE_NAME=${PRESTASHOP_DATABASE_NAME}
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - ALLOW_EMPTY_PASSWORD=yes
       - PRESTASHOP_DATABASE_USER=${PRESTASHOP_DATABASE_USER}
-      - PRESTASHOP_DATABASE_PASSWORD=${WORDPRESS_DATABASE_PASSWORD}
+      - PRESTASHOP_DATABASE_PASSWORD=${PRESTASHOP_DATABASE_PASSWORD}
       - PRESTASHOP_DATABASE_PREFIX=${PRESTASHOP_DATABASE_PREFIX}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - PRESTASHOP_ENABLE_SSL=1
       - PRESTASHOP_ENABLE_HTTPS=yes
     volumes: 
       - prestashop_data:/bitnami/prestashop
@@ -42,7 +42,7 @@ services:
     networks:
       - backend-network
     security_opt:
-      - seccomp:unconfinded
+      - seccomp:unconfined
       
   phpmyadmin:
     image: phpmyadmin:5
@@ -63,6 +63,7 @@ services:
     restart: always
     environment:
       DOMAINS: '${DNS_DOMAIN_SECURE} -> http://prestashop:8080'
+      STAGE: 'production' # Don't use production until staging works
     volumes:
       - ssl_certs_data:/var/lib/https-portal
     depends_on:
