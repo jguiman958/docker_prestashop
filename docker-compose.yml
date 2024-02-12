@@ -1,10 +1,8 @@
-version: '3'
+version: '3.3'
 
 services:
   wordpress:
-    image: bitnami/prestashop:8.1.3
-    ports:
-      - 80
+    image: bitnami/prestashop:1.7
     environment: 
       - PRESTASHOP_FIRST_NAME=${PRESTASHOP_FIRST_NAME}
       - PRESTASHOP_LAST_NAME=${PRESTASHOP_LAST_NAME}
@@ -19,6 +17,7 @@ services:
       - PRESTASHOP_DATABASE_PASSWORD=${WORDPRESS_DATABASE_PASSWORD}
       - PRESTASHOP_DATABASE_PREFIX=${PRESTASHOP_DATABASE_PREFIX}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - PRESTASHOP_ENABLE_HTTPS=yes
     volumes: 
       - prestashop_data:/bitnami/prestashop
     depends_on:
@@ -42,9 +41,11 @@ services:
     restart: always
     networks:
       - backend-network
+    security_opt:
+      - seccomp:unconfinded
       
   phpmyadmin:
-    image: phpmyadmin:5.2.1
+    image: phpmyadmin:5
     ports:
       - 8080:80
     environment: 
@@ -54,22 +55,25 @@ services:
       - frontend-network
       - backend-network
 
-#  https-portal:
-#    image: steveltn/https-portal:1
-#    ports:
-#      - 80:80
-#      - 443:443
-#    restart: always
-#    environment:
-#      DOMAINS: '${DNS_DOMAIN_SECURE} -> http://wordpress:8080'
-#      STAGE: 'production' # Don't use production until staging works
-      # FORCE_RENEW: 'true'
-#    networks:
-#      - frontend-network
+  https-portal:
+    image: steveltn/https-portal:1
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    environment:
+      DOMAINS: '${DNS_DOMAIN_SECURE} -> http://prestashop:8080'
+    volumes:
+      - ssl_certs_data:/var/lib/https-portal
+    depends_on:
+      - prestashop
+    networks:
+      - frontend-network
 
 volumes: 
   mysql_data:
   prestashop_data:
+  ssl_certs_data:
 
 networks:
   frontend-network:
