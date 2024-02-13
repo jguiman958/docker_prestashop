@@ -63,7 +63,7 @@ services:
     restart: always
     environment:
       DOMAINS: '${DNS_DOMAIN_SECURE} -> http://prestashop:8080'
-      STAGE: 'production' # Don't use production until staging works
+      STAGE: 'staging' # Don't use production until staging works
     volumes:
       - ssl_certs_data:/var/lib/https-portal
     depends_on:
