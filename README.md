@@ -176,6 +176,22 @@ En este caso, necesita los 80 y 443, http y https, http para que se pueda comuni
 DNS_DOMAIN_SECURE=docker-dominio.ddns.net
 ```
 
+Para acceder desde local, STAGE establecerlo en staging.
+```
+  https-portal:
+    image: steveltn/https-portal:1
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    environment:
+      DOMAINS: '${DNS_DOMAIN_SECURE} -> http://prestashop:8080'
+      STAGE: 'production' # Don't use production until staging works
+      # FORCE_RENEW: 'true'
+    networks:
+      - frontend-network
+```
+
 Como podemos ver en bitnami tanto para prestashop como wordpress los puertos son 8080 es necesario tenerlos abiertos en la máquina.
 
 #### Parte de los volumenes y redes creadas durante la creación del fichero docker-compose.yml
@@ -196,6 +212,15 @@ Es necesario crear, estas redes y volumenes al final para que se asigne de forma
 
 Comprobacion de que al lanzar el comando ``docker-compose up`` funcione.
 
-
+![alt text](capturas/captura-prestashop.PNG)
 
 Podemos comprobar que se ha ejecutado la instruccion correctamente y ya está prestashop instalado.
+
+## Comprobación de que muestra el contenido via cliente web de forma segura.
+
+![alt text](capturas/PRESTASHOP1.PNG)
+
+Podemos comprobar que muestra el contenido de forma segura, encriptando las peticiones y respuestas entre cliente y servidor. El certificado es valido por una autoridad certificadora.
+
+### Prueba de que funciona con un certificado autofirmado.
+
